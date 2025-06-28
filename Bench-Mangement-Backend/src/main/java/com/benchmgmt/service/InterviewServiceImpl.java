@@ -1,0 +1,294 @@
+package com.benchmgmt.service;
+
+import com.benchmgmt.dto.InterviewCycleDTO;
+import com.benchmgmt.dto.InterviewDTO;
+import com.benchmgmt.dto.InterviewRoundDTO;
+import com.benchmgmt.entity.Candidate;
+import com.benchmgmt.entity.Interview;
+import com.benchmgmt.entity.InterviewCycle;
+import com.benchmgmt.repository.CandidateRepository;
+import com.benchmgmt.repository.InterviewCycleRepository;
+import com.benchmgmt.repository.InterviewRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class InterviewServiceImpl implements InterviewService {
+
+    private final InterviewRepository interviewRepository;
+    private final CandidateRepository candidateRepository;
+    private final InterviewCycleRepository interviewCycleRepository;
+
+    @Override
+    public InterviewDTO saveInterview(InterviewDTO dto) {
+        Interview interview = toEntity(dto);
+        Interview saved = interviewRepository.save(interview);
+        return toDTO(saved);
+    }
+
+    @Override
+    public InterviewDTO getInterviewById(Integer id) {
+        Interview interview = interviewRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Interview not found"));
+        return toDTO(interview);
+    }
+
+    @Override
+    public List<InterviewDTO> getAllInterviews() {
+        return interviewRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<InterviewDTO> getInterviewsByCandidateId(Integer employeeId) {
+        return interviewRepository.findByCandidate_EmployeeId(employeeId)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public InterviewDTO updateInterview(Integer id, InterviewDTO dto) {
+        Interview interview = interviewRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Interview not found"));
+
+        Candidate candidate = candidateRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
+        InterviewCycle cycle = interviewCycleRepository.findById(Math.toIntExact(dto.getCycleId()))
+                .orElseThrow(() -> new RuntimeException("Interview cycle not found"));
+
+        interview.setCandidate(candidate);
+        interview.setInterviewCycle(cycle);
+        interview.setDate(dto.getDate());
+        interview.setPanel(dto.getPanel());
+        interview.setStatus(dto.getStatus());
+        interview.setFeedback(dto.getFeedback());
+        interview.setDetailedFeedback(dto.getDetailedFeedback());
+        interview.setReview(dto.getReview());
+        interview.setRound(dto.getRound());
+        interview.setDepartment(dto.getDepartment());
+        interview.setClient(dto.getClient());
+
+        Interview updated = interviewRepository.save(interview);
+        return toDTO(updated);
+    }
+
+    @Override
+    public void deleteInterview(Integer id) {
+        interviewRepository.deleteById(id);
+    }
+
+    public List<InterviewCycleDTO> getInterviewCyclesByCandidateId(Integer empId) {
+        return interviewCycleRepository.findByCandidate_EmployeeId(empId)
+                .stream()
+                .map(c -> InterviewCycleDTO.builder()
+                        .cycleId(c.getCycleId())
+                        .title(c.getTitle())
+                        .client(c.getClient())
+                        .employeeId(c.getCandidate().getEmployeeId()) // ✅ ADD THIS LINE
+                        .build())
+                .toList();
+    }
+
+
+    @Override
+    public List<InterviewRoundDTO> getInterviewsByCycleId(Integer cycleId) {
+        InterviewCycle cycle = interviewCycleRepository.findById(cycleId)
+                .orElseThrow(() -> new RuntimeException("Cycle not found"));
+
+        return cycle.getInterviews().stream()
+                .map(i -> InterviewRoundDTO.builder()
+                        .round(i.getRound())
+                        .panel(i.getPanel())
+                        .status(i.getStatus().name())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public InterviewDTO saveInterviewForCycle(Long cycleId, InterviewDTO dto) {
+        Candidate candidate = candidateRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
+        InterviewCycle cycle = interviewCycleRepository.findById(Math.toIntExact(cycleId))
+                .orElseThrow(() -> new RuntimeException("Interview cycle not found"));
+
+        Interview interview = Interview.builder()
+                .candidate(candidate)
+                .interviewCycle(cycle)
+                .date(dto.getDate())
+                .panel(dto.getPanel())
+                .status(dto.getStatus())
+                .feedback(dto.getFeedback())
+                .detailedFeedback(dto.getDetailedFeedback())
+                .review(dto.getReview())
+                .round(dto.getRound())
+                .department(dto.getDepartment())
+                .client(dto.getClient())
+                .build();
+
+        Interview saved = interviewRepository.save(interview);
+        return toDTO(saved);
+    }
+
+    @Override
+    public InterviewDTO saveInterviewRoundForCycle(Long cycleId, InterviewDTO dto) {
+        Candidate candidate = candidateRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
+        InterviewCycle cycle = interviewCycleRepository.findById(Math.toIntExact(cycleId))
+                .orElseThrow(() -> new RuntimeException("Interview cycle not found"));
+
+        Interview interview = Interview.builder()
+                .candidate(candidate)
+                .interviewCycle(cycle)
+                .date(dto.getDate())
+                .panel(dto.getPanel())
+                .status(dto.getStatus())
+                .feedback(dto.getFeedback())
+                .detailedFeedback(dto.getDetailedFeedback())
+                .review(dto.getReview())
+                .round(dto.getRound())
+                .department(dto.getDepartment())
+                .client(dto.getClient())
+                .build();
+
+        Interview saved = interviewRepository.save(interview);
+        return toDTO(saved);
+    }
+
+
+    @Override
+    public List<InterviewDTO> getFullInterviewsByCycleId(Integer cycleId) {
+        InterviewCycle cycle = interviewCycleRepository.findById(cycleId)
+                .orElseThrow(() -> new RuntimeException("Cycle not found"));
+
+        return cycle.getInterviews().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<InterviewDTO> getFullInterviewsByCandidateAndCycle(Integer employeeId, Integer cycleId) {
+        InterviewCycle cycle = interviewCycleRepository.findById(cycleId)
+                .orElseThrow(() -> new RuntimeException("Cycle not found"));
+
+        if (!cycle.getCandidate().getEmployeeId().equals(employeeId)) {
+            throw new RuntimeException("Cycle does not belong to the candidate");
+        }
+
+        return cycle.getInterviews().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public InterviewDTO addInterviewRoundToCycle(Integer employeeId, Integer cycleId, InterviewDTO dto) {
+        Candidate candidate = candidateRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
+        InterviewCycle cycle = interviewCycleRepository.findById(cycleId)
+                .orElseThrow(() -> new RuntimeException("Cycle not found"));
+
+        if (!cycle.getCandidate().getEmployeeId().equals(employeeId)) {
+            throw new RuntimeException("Cycle does not belong to the candidate");
+        }
+
+        Interview interview = Interview.builder()
+                .candidate(candidate)
+                .interviewCycle(cycle)
+                .date(dto.getDate())
+                .panel(dto.getPanel())
+                .status(dto.getStatus())
+                .feedback(dto.getFeedback())
+                .detailedFeedback(dto.getDetailedFeedback())
+                .review(dto.getReview())
+                .round(dto.getRound())
+                .department(dto.getDepartment())
+                .client(dto.getClient())
+                .build();
+
+        Interview saved = interviewRepository.save(interview);
+        return toDTO(saved);
+    }
+
+
+
+
+    // ----------- Mapping Methods -----------
+
+    private InterviewDTO toDTO(Interview entity) {
+        return InterviewDTO.builder()
+                .interviewId(entity.getInterviewId())
+                .employeeId(entity.getCandidate().getEmployeeId())
+                .cycleId(entity.getInterviewCycle() != null ? entity.getInterviewCycle().getCycleId() : null)
+                .date(entity.getDate())
+                .panel(entity.getPanel())
+                .status(entity.getStatus())
+                .feedback(entity.getFeedback())
+                .detailedFeedback(entity.getDetailedFeedback())
+                .review(entity.getReview())
+                .round(entity.getRound())
+                .department(entity.getDepartment())
+                .client(entity.getClient())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
+    }
+
+    private Interview toEntity(InterviewDTO dto) {
+        Candidate candidate = candidateRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
+        InterviewCycle cycle = interviewCycleRepository.findById(Math.toIntExact(dto.getCycleId()))
+                .orElseThrow(() -> new RuntimeException("Interview cycle not found"));
+
+        return Interview.builder()
+                .interviewId(dto.getInterviewId())
+                .candidate(candidate)
+                .interviewCycle(cycle)
+                .date(dto.getDate())
+                .panel(dto.getPanel())
+                .status(dto.getStatus())
+                .feedback(dto.getFeedback())
+                .detailedFeedback(dto.getDetailedFeedback())
+                .review(dto.getReview())
+                .round(dto.getRound())
+                .department(dto.getDepartment())
+                .client(dto.getClient())
+                .build();
+    }
+
+    @Override
+    public InterviewCycleDTO createInterviewCycle(InterviewCycleDTO dto) {
+        Candidate candidate = candidateRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
+        InterviewCycle cycle = InterviewCycle.builder()
+                .title(dto.getTitle())
+                .client(dto.getClient())
+                .startedAt(LocalDate.now())
+                .candidate(candidate)
+                .build();
+
+        InterviewCycle saved = interviewCycleRepository.save(cycle);
+
+        return InterviewCycleDTO.builder()
+                .cycleId(saved.getCycleId())
+                .title(saved.getTitle())
+                .client(saved.getClient())
+                .employeeId(saved.getCandidate().getEmployeeId())
+                .build();
+    }
+
+}
