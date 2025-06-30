@@ -47,8 +47,8 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     @Override
-    public List<InterviewDTO> getInterviewsByCandidateId(Integer employeeId) {
-        return interviewRepository.findByCandidate_EmployeeId(employeeId)
+    public List<InterviewDTO> getInterviewsByCandidateId(Integer empId ) {
+        return interviewRepository.findByCandidate_empId(empId)
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
@@ -59,7 +59,7 @@ public class InterviewServiceImpl implements InterviewService {
         Interview interview = interviewRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Interview not found"));
 
-        Candidate candidate = candidateRepository.findById(dto.getEmployeeId())
+        Candidate candidate = candidateRepository.findById(dto.getEmpId())
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));
 
         InterviewCycle cycle = interviewCycleRepository.findById(Math.toIntExact(dto.getCycleId()))
@@ -87,13 +87,13 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     public List<InterviewCycleDTO> getInterviewCyclesByCandidateId(Integer empId) {
-        return interviewCycleRepository.findByCandidate_EmployeeId(empId)
+        return interviewCycleRepository.findByCandidate_empId(empId)
                 .stream()
                 .map(c -> InterviewCycleDTO.builder()
                         .cycleId(c.getCycleId())
                         .title(c.getTitle())
                         .client(c.getClient())
-                        .employeeId(c.getCandidate().getEmployeeId()) // ✅ ADD THIS LINE
+                        .empId(c.getCandidate().getEmpId()) // ✅ ADD THIS LINE
                         .build())
                 .toList();
     }
@@ -116,7 +116,7 @@ public class InterviewServiceImpl implements InterviewService {
 
     @Override
     public InterviewDTO saveInterviewForCycle(Long cycleId, InterviewDTO dto) {
-        Candidate candidate = candidateRepository.findById(dto.getEmployeeId())
+        Candidate candidate = candidateRepository.findById(dto.getEmpId())
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));
 
         InterviewCycle cycle = interviewCycleRepository.findById(Math.toIntExact(cycleId))
@@ -142,7 +142,7 @@ public class InterviewServiceImpl implements InterviewService {
 
     @Override
     public InterviewDTO saveInterviewRoundForCycle(Long cycleId, InterviewDTO dto) {
-        Candidate candidate = candidateRepository.findById(dto.getEmployeeId())
+        Candidate candidate = candidateRepository.findById(dto.getEmpId())
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));
 
         InterviewCycle cycle = interviewCycleRepository.findById(Math.toIntExact(cycleId))
@@ -179,11 +179,11 @@ public class InterviewServiceImpl implements InterviewService {
 
 
     @Override
-    public List<InterviewDTO> getFullInterviewsByCandidateAndCycle(Integer employeeId, Integer cycleId) {
+    public List<InterviewDTO> getFullInterviewsByCandidateAndCycle(Integer empId, Integer cycleId) {
         InterviewCycle cycle = interviewCycleRepository.findById(cycleId)
                 .orElseThrow(() -> new RuntimeException("Cycle not found"));
 
-        if (!cycle.getCandidate().getEmployeeId().equals(employeeId)) {
+        if (!cycle.getCandidate().getEmpId().equals(empId)) {
             throw new RuntimeException("Cycle does not belong to the candidate");
         }
 
@@ -193,14 +193,14 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     @Override
-    public InterviewDTO addInterviewRoundToCycle(Integer employeeId, Integer cycleId, InterviewDTO dto) {
-        Candidate candidate = candidateRepository.findById(employeeId)
+    public InterviewDTO addInterviewRoundToCycle(Integer empId, Integer cycleId, InterviewDTO dto) {
+        Candidate candidate = candidateRepository.findById(empId)
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));
 
         InterviewCycle cycle = interviewCycleRepository.findById(cycleId)
                 .orElseThrow(() -> new RuntimeException("Cycle not found"));
 
-        if (!cycle.getCandidate().getEmployeeId().equals(employeeId)) {
+        if (!cycle.getCandidate().getEmpId().equals(empId)) {
             throw new RuntimeException("Cycle does not belong to the candidate");
         }
 
@@ -230,7 +230,7 @@ public class InterviewServiceImpl implements InterviewService {
     private InterviewDTO toDTO(Interview entity) {
         return InterviewDTO.builder()
                 .interviewId(entity.getInterviewId())
-                .employeeId(entity.getCandidate().getEmployeeId())
+                .empId(entity.getCandidate().getEmpId())
                 .cycleId(entity.getInterviewCycle() != null ? entity.getInterviewCycle().getCycleId() : null)
                 .date(entity.getDate())
                 .panel(entity.getPanel())
@@ -247,7 +247,7 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     private Interview toEntity(InterviewDTO dto) {
-        Candidate candidate = candidateRepository.findById(dto.getEmployeeId())
+        Candidate candidate = candidateRepository.findById(dto.getEmpId())
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));
 
         InterviewCycle cycle = interviewCycleRepository.findById(Math.toIntExact(dto.getCycleId()))
@@ -271,7 +271,7 @@ public class InterviewServiceImpl implements InterviewService {
 
     @Override
     public InterviewCycleDTO createInterviewCycle(InterviewCycleDTO dto) {
-        Candidate candidate = candidateRepository.findById(dto.getEmployeeId())
+        Candidate candidate = candidateRepository.findById(dto.getEmpId())
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));
 
         InterviewCycle cycle = InterviewCycle.builder()
@@ -287,7 +287,7 @@ public class InterviewServiceImpl implements InterviewService {
                 .cycleId(saved.getCycleId())
                 .title(saved.getTitle())
                 .client(saved.getClient())
-                .employeeId(saved.getCandidate().getEmployeeId())
+                .empId(saved.getCandidate().getEmpId())
                 .build();
     }
 

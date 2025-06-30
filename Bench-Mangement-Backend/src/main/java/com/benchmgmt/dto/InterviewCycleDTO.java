@@ -15,7 +15,7 @@ public class InterviewCycleDTO {
     private Long cycleId;
     private String client;
     private String title;
-    private Integer employeeId;
+    private Integer empId;
 }
 
 

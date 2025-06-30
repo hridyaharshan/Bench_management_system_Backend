@@ -19,10 +19,8 @@ public class Interview {
     private Integer interviewId;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "candidate_id") // ❗ Important: do not put @GeneratedValue here
     private Candidate candidate;
-
-
 
     private LocalDate date;
     private String panel;
@@ -53,7 +51,7 @@ public class Interview {
     }
 
     @ManyToOne
-    @JoinColumn
-    private InterviewCycle interviewCycle; // ✅ THIS is sufficient
+    @JoinColumn(name = "interview_cycle_id") // ❗ Just a join column, no auto generation
+    private InterviewCycle interviewCycle;
 }
 

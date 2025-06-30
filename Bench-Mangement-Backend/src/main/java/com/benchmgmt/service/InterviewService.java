@@ -11,7 +11,7 @@ public interface InterviewService {
     InterviewDTO saveInterview(InterviewDTO dto);
     InterviewDTO getInterviewById(Integer id);
 
-    List<InterviewDTO> getInterviewsByCandidateId(Integer employeeId);
+    List<InterviewDTO> getInterviewsByCandidateId(Integer empId);
 
 
     List<InterviewDTO> getAllInterviews();
@@ -22,8 +22,8 @@ public interface InterviewService {
     InterviewDTO saveInterviewForCycle(Long cycleId, InterviewDTO dto);
     InterviewDTO saveInterviewRoundForCycle(Long cycleId, InterviewDTO dto);
 
-    List<InterviewDTO> getFullInterviewsByCandidateAndCycle(Integer employeeId, Integer cycleId);
-    InterviewDTO addInterviewRoundToCycle(Integer employeeId, Integer cycleId, InterviewDTO dto);
+    List<InterviewDTO> getFullInterviewsByCandidateAndCycle(Integer empId, Integer cycleId);
+    InterviewDTO addInterviewRoundToCycle(Integer empId, Integer cycleId, InterviewDTO dto);
 
 
     List<InterviewCycleDTO> getInterviewCyclesByCandidateId(Integer id);

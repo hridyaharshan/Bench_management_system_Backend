@@ -16,7 +16,7 @@ public class InterviewDTO {
     private Integer interviewId;
 
     // Use the correct name to match the Candidate field
-    private Integer employeeId;
+    private Integer empId;
     private Long cycleId; // Add this
 
     private LocalDate date;

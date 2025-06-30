@@ -10,5 +10,5 @@ import java.util.List;
 public interface InterviewCycleRepository extends JpaRepository<InterviewCycle, Integer> {
 
     // 🔍 Get all interview cycles by candidate employee ID
-    List<InterviewCycle> findByCandidate_EmployeeId(Integer employeeId);
+    List<InterviewCycle> findByCandidate_empId(Integer empId);
 }

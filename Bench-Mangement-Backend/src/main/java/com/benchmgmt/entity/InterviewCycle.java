@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,13 +21,11 @@ public class InterviewCycle {
     private Long cycleId;
 
     private String client;
-
     private String title;
-
     private LocalDate startedAt;
 
     @ManyToOne
-    @JoinColumn(name = "employee_id")
+    @JoinColumn(name = "candidate_id") // ❗ Just reference, no generation
     private Candidate candidate;
 
     @OneToMany(mappedBy = "interviewCycle", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

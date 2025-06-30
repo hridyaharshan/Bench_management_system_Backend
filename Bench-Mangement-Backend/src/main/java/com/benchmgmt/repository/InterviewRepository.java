@@ -11,7 +11,7 @@ import java.util.List;
 public interface InterviewRepository extends JpaRepository<Interview, Integer> {
 
     // ✅ Correct: navigating to candidate's ID
-    List<Interview> findByCandidate_EmployeeId(Integer employeeId); // ✅ CORRECT
+    List<Interview> findByCandidate_empId(Integer empId); // ✅ CORRECT
 
 
     List<Interview> findByStatus(InterviewStatus status);
