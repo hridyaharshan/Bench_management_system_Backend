@@ -2,35 +2,36 @@ package com.benchmgmt.controller;
 
 
 
+import com.benchmgmt.dto.CandidateDTO;
 import com.benchmgmt.entity.Candidate;
 import com.benchmgmt.repository.CandidateRepository;
+import com.benchmgmt.service.CandidateService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/candidates")
+@RequestMapping("/bench")
 @RequiredArgsConstructor
-@CrossOrigin
 public class CandidateController {
 
-    private final CandidateRepository candidateRepository;
+    private final CandidateService service;
 
-    @PostMapping
-    public Candidate createCandidate(@RequestBody Candidate candidate) {
-        return candidateRepository.save(candidate);
+    @PostMapping("/add")
+    public ResponseEntity<Candidate> addCandidate(@Validated @RequestBody CandidateDTO dto) {
+        return ResponseEntity.ok(service.addCandidate(dto));
     }
 
-    @GetMapping
-    public List<Candidate> getAllCandidates() {
-        return candidateRepository.findAll();
+    @GetMapping("/details")
+    public ResponseEntity<List<Candidate>> getDetails() {
+        return ResponseEntity.ok(service.getAllCandidates());
     }
 
-    @GetMapping("/{empId}")
-    public Candidate getCandidateById(@PathVariable Integer empId) {
-        return candidateRepository.findById(empId)
-                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+    @GetMapping("/")
+    public String healthCheck() {
+        return "Candidate API is running!";
     }
 }
-
